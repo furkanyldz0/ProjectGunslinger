@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 821722aa534182341b5c6c09c4246b30, type: 3}
   m_Name: FireWeapon1
   m_EditorClassIdentifier: Assembly-CSharp::FireWeaponSO
-  rateOfFire: 0.2
-  magazine: 50
+  rateOfFire: 0.5
+  magazine: 12
+  reloadTime: 2
   fireWeaponName: Weapon1

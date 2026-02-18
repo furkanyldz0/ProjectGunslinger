@@ -2,10 +2,13 @@ using UnityEngine;
 
 public class AutoGun : MonoBehaviour
 {
-    public float rateOfFire;
-    public int magazine;
-
+    //WeaponSO properties
+    private float rateOfFire;
+    private int magazine;
+    private float reloadTime;
+    
     private float rateOfFireDelta;
+    private bool isReloading;
     private Vector2 screenCenterPoint;
 
     [SerializeField] private FireWeaponSO fireWeaponSO;
@@ -13,21 +16,38 @@ public class AutoGun : MonoBehaviour
 
     private void Start()
     {
-        Player.Instance.OnShot += Instance_OnShot;
+        Player.Instance.OnShot += Player_OnShot;
+        Player.Instance.OnReload += Player_OnReload;
         screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
         rateOfFire = fireWeaponSO.rateOfFire;
         magazine = fireWeaponSO.magazine;
-
     }
 
     private void Update() {
-        if(rateOfFireDelta >= 0) {
+        if (rateOfFireDelta >= 0) {
             rateOfFireDelta -= Time.deltaTime;
+        }
+
+        HandleReload();
+    }
+
+    private void HandleReload() {
+        if (reloadTime >= 0) {
+            reloadTime -= Time.deltaTime;
+            if (reloadTime < 0) {
+                magazine = fireWeaponSO.magazine;
+                isReloading = false;
+                Debug.Log("Reloaded");
+            }
         }
     }
 
-    private void Instance_OnShot(object sender, System.EventArgs e) {
-        bool canShoot = rateOfFireDelta <= 0f && magazine > 0;
+    private void Player_OnReload(object sender, System.EventArgs e) {
+        Reload();
+    }
+
+    private void Player_OnShot(object sender, System.EventArgs e) {
+        bool canShoot = rateOfFireDelta <= 0f && magazine > 0 && !isReloading;
         if (canShoot) {
             Shoot();
             rateOfFireDelta = rateOfFire;
@@ -49,8 +69,11 @@ public class AutoGun : MonoBehaviour
     }
 
     public void Reload() {
-        Debug.Log("Reload");
-        magazine = fireWeaponSO.magazine;
+        if (!isReloading) {
+            isReloading = true;
+            reloadTime = fireWeaponSO.reloadTime;
+            Debug.Log("Reloading");
+        }
     }
 
 

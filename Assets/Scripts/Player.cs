@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
     public static Player Instance;
 
     public event EventHandler OnShot;
+    public event EventHandler OnReload;
 
     private StarterAssetsInputs input;
 
@@ -39,6 +40,11 @@ public class Player : MonoBehaviour
         if (input.fire) {
             OnShot?.Invoke(this, EventArgs.Empty);
             //shootTimeoutDelta = shootTimeout;
+        }
+
+        if (input.reload) {
+            OnReload?.Invoke(this, EventArgs.Empty);
+            input.reload = false;
         }
     }
 }
