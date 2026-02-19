@@ -6,8 +6,8 @@ public class Player : MonoBehaviour
 {
     public static Player Instance;
 
-    public event EventHandler OnShot;
-    public event EventHandler OnReload;
+    public event EventHandler PlayerOnShot;
+    public event EventHandler PlayerOnReload;
 
     private StarterAssetsInputs input;
 
@@ -38,12 +38,12 @@ public class Player : MonoBehaviour
         //}
 
         if (input.fire) {
-            OnShot?.Invoke(this, EventArgs.Empty);
+            PlayerOnShot?.Invoke(this, EventArgs.Empty);
             //shootTimeoutDelta = shootTimeout;
         }
 
         if (input.reload) {
-            OnReload?.Invoke(this, EventArgs.Empty);
+            PlayerOnReload?.Invoke(this, EventArgs.Empty);
             input.reload = false;
         }
     }

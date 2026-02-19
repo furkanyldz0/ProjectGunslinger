@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class AutoGun : MonoBehaviour
@@ -6,6 +7,9 @@ public class AutoGun : MonoBehaviour
     private float rateOfFire;
     private int magazine;
     private float reloadTime;
+
+    public event EventHandler GunOnShot;
+    public event EventHandler GunOnReload;
     
     private float rateOfFireDelta;
     private bool isReloading;
@@ -16,8 +20,8 @@ public class AutoGun : MonoBehaviour
 
     private void Start()
     {
-        Player.Instance.OnShot += Player_OnShot;
-        Player.Instance.OnReload += Player_OnReload;
+        Player.Instance.PlayerOnShot += Player_OnShot;
+        Player.Instance.PlayerOnReload += Player_OnReload;
         screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
         rateOfFire = fireWeaponSO.rateOfFire;
         magazine = fireWeaponSO.magazine;
@@ -64,6 +68,7 @@ public class AutoGun : MonoBehaviour
             magazine--;
             var bullet = Instantiate(bulletPrefab, raycastHit.point, Quaternion.identity);
             Destroy(bullet.gameObject, 20f);
+            GunOnShot?.Invoke(this, EventArgs.Empty);
             Debug.Log(magazine);
         }
     }
@@ -72,6 +77,7 @@ public class AutoGun : MonoBehaviour
         if (!isReloading) {
             isReloading = true;
             reloadTime = fireWeaponSO.reloadTime;
+            GunOnReload?.Invoke(this, EventArgs.Empty);
             Debug.Log("Reloading");
         }
     }
