@@ -8,8 +8,11 @@ public class AutoGun : MonoBehaviour
     private int magazine;
     private float reloadTime;
 
-    public event EventHandler GunOnShot;
+    public event EventHandler<GunOnReloadEventArgs> GunOnShot;
     public event EventHandler GunOnReload;
+    public class GunOnReloadEventArgs : EventArgs {
+        public Vector3 impactPosition;
+    }
     
     private float rateOfFireDelta;
     private bool isReloading;
@@ -66,9 +69,13 @@ public class AutoGun : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit raycastHit, Mathf.Infinity)) {
             magazine--;
-            var bullet = Instantiate(bulletPrefab, raycastHit.point, Quaternion.identity);
-            Destroy(bullet.gameObject, 20f);
-            GunOnShot?.Invoke(this, EventArgs.Empty);
+            //var bullet = Instantiate(bulletPrefab, raycastHit.point, Quaternion.identity);
+            //Destroy(bullet.gameObject, 20f);
+
+            GunOnShot?.Invoke(this, new GunOnReloadEventArgs {
+                impactPosition = raycastHit.point
+            });
+
             Debug.Log(magazine);
         }
     }
