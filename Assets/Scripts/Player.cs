@@ -4,21 +4,24 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public static Player Instance;
+    public static Player Instance { get; private set; }
 
     public event EventHandler PlayerOnShot;
     public event EventHandler PlayerOnReload;
 
     private StarterAssetsInputs input;
 
-    //[SerializeField] float shootTimeout = 0.05f; //ateþlenme durumunu bu sürede bi kontrol etsin
-    private float shootTimeoutDelta;
+    [SerializeField] private GameObject equippedGunObject; //ui'yý ammo bilgisini falan yönetmek için
+    private IGun equippedGun;
+
 
     private void Awake() {
         if (Instance != null) {
             Debug.Log("Sahnede birden fazla player var!");
         }
         Instance = this;
+
+        equippedGun = equippedGunObject.GetComponent<IGun>();
     }
 
     private void Start()
@@ -33,18 +36,22 @@ public class Player : MonoBehaviour
     }
 
     private void HandleShoot() {
-        //if(shootTimeoutDelta >= 0f) {
-        //    shootTimeoutDelta -= Time.deltaTime;
-        //}
 
         if (input.fire) {
             PlayerOnShot?.Invoke(this, EventArgs.Empty);
-            //shootTimeoutDelta = shootTimeout;
         }
 
         if (input.reload) {
             PlayerOnReload?.Invoke(this, EventArgs.Empty);
             input.reload = false;
         }
+    }
+
+    public IGun GetCurrentGun() { //oyuncu silaha baðlý deðil, mevcut aktif silahý elde etmek için kullanacaðýz
+        return equippedGun;
+    }
+
+    public void SetCurrentGun(IGun gun) {
+        equippedGun = gun;
     }
 }

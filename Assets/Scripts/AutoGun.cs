@@ -1,25 +1,22 @@
 using System;
 using UnityEngine;
 
-public class AutoGun : MonoBehaviour
+public class AutoGun : MonoBehaviour, IGun
 {
-    //WeaponSO properties
+    //WeaponSO alanlarý
     private float rateOfFire;
     private int magazine;
     private float reloadTime;
 
-    public event EventHandler<GunOnReloadEventArgs> GunOnShot;
+    public event EventHandler<IGun.GunOnShotEventArgs> GunOnShot;
     public event EventHandler GunOnReload;
-    public class GunOnReloadEventArgs : EventArgs {
-        public Vector3 impactPosition;
-    }
+    public event EventHandler<IGun.GunOnFinishedReloadingEventArgs> GunOnFinishedReloading;
     
     private float rateOfFireDelta;
     private bool isReloading;
     private Vector2 screenCenterPoint;
 
     [SerializeField] private FireWeaponSO fireWeaponSO;
-    [SerializeField] private Transform bulletPrefab;
 
     private void Start()
     {
@@ -44,6 +41,9 @@ public class AutoGun : MonoBehaviour
             if (reloadTime < 0) {
                 magazine = fireWeaponSO.magazine;
                 isReloading = false;
+                GunOnFinishedReloading?.Invoke(this, new IGun.GunOnFinishedReloadingEventArgs {
+                    magazine = magazine
+                });
                 Debug.Log("Reloaded");
             }
         }
@@ -69,14 +69,18 @@ public class AutoGun : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit raycastHit, Mathf.Infinity)) {
             magazine--;
-            //var bullet = Instantiate(bulletPrefab, raycastHit.point, Quaternion.identity);
-            //Destroy(bullet.gameObject, 20f);
-
-            GunOnShot?.Invoke(this, new GunOnReloadEventArgs {
-                impactPosition = raycastHit.point
+            
+            GunOnShot?.Invoke(this, new IGun.GunOnShotEventArgs {
+                impactPosition = raycastHit.point,
+                raycastHitNormal = raycastHit.normal,
+                magazine = magazine
             });
 
-            Debug.Log(magazine);
+            if (raycastHit.transform.TryGetComponent<Enemy>(out Enemy enemy)) {
+                enemy.Damage(33f);
+            }
+
+            //Debug.Log(magazine);
         }
     }
 
@@ -87,6 +91,10 @@ public class AutoGun : MonoBehaviour
             GunOnReload?.Invoke(this, EventArgs.Empty);
             Debug.Log("Reloading");
         }
+    }
+
+    public int GetMagazineCapacity() {
+        return fireWeaponSO.magazine;
     }
 
 
